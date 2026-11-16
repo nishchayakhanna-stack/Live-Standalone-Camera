@@ -439,6 +439,7 @@ button:disabled {
 </main>
 
 <script>
+
 const video = document.getElementById("video");
 const preview = document.getElementById("preview");
 const canvas = document.getElementById("canvas");
@@ -451,42 +452,128 @@ const statusText = document.getElementById("status");
 
 let cameraStream = null;
 let capturedImage = null;
+let requestFinished = false;
 
+// Get attendance request token
+const params = new URLSearchParams(window.location.search);
+const requestToken = params.get("token");
+
+// Stop all active camera tracks
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => {
+      track.stop();
+    });
+
+    cameraStream = null;
+  }
+
+  video.srcObject = null;
+}
+
+// Notify attendance portal about cancellation
+function notifyCancellation(reason) {
+
+  if (requestFinished) return;
+
+  requestFinished = true;
+
+  stopCamera();
+
+  if (window.opener && !window.opener.closed && requestToken) {
+    window.opener.postMessage(
+      {
+        type: "ATTENDANCE_SELFIE_CANCELLED",
+        token: requestToken,
+        reason: reason
+      },
+      "*"
+    );
+  }
+
+  // Disable all camera actions
+  captureBtn.disabled = true;
+  retakeBtn.disabled = true;
+  continueBtn.disabled = true;
+  cancelBtn.disabled = true;
+
+  statusText.textContent = reason;
+
+  // Close camera popup
+  setTimeout(function() {
+    window.close();
+  }, 800);
+}
+
+// Start camera
 async function startCamera() {
+
   try {
+
     if (!navigator.mediaDevices ||
         !navigator.mediaDevices.getUserMedia) {
-      throw new Error("Camera API unavailable");
+
+      throw new Error("CAMERA_NOT_SUPPORTED");
     }
 
     cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user" },
+      video: {
+        facingMode: "user"
+      },
       audio: false
     });
 
+    if (requestFinished) {
+      stopCamera();
+      return;
+    }
+
     video.srcObject = cameraStream;
+
     await video.play();
 
     statusText.textContent =
       "Camera ready. Capture your selfie.";
 
   } catch (error) {
-    console.error(error);
 
-    statusText.textContent =
-      "Camera access denied or unavailable. Check browser permissions.";
+    console.error("Camera Error:", error);
+
+    let reason = "Camera unavailable. Please check browser settings.";
+
+    if (
+      error.name === "NotAllowedError" ||
+      error.name === "PermissionDeniedError"
+    ) {
+      reason = "Camera permission denied. Please allow camera access and try again.";
+
+    } else if (
+      error.name === "NotFoundError" ||
+      error.name === "DevicesNotFoundError"
+    ) {
+      reason = "No camera was found on this device.";
+
+    } else if (
+      error.name === "NotReadableError" ||
+      error.name === "TrackStartError"
+    ) {
+      reason = "Camera is being used by another application.";
+
+    } else if (error.message === "CAMERA_NOT_SUPPORTED") {
+      reason = "Camera is not supported in this browser.";
+
+    } else if (error.name === "AbortError") {
+      reason = "Camera could not be started. Please try again.";
+    }
+
+    notifyCancellation(reason);
   }
 }
 
-function stopCamera() {
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(track => track.stop());
-    cameraStream = null;
-  }
-}
-
+// Capture selfie
 captureBtn.onclick = function() {
-  if (!video.videoWidth) return;
+
+  if (requestFinished || !video.videoWidth) return;
 
   const maxWidth = 1280;
   const scale = Math.min(1, maxWidth / video.videoWidth);
@@ -495,7 +582,11 @@ captureBtn.onclick = function() {
   canvas.height = Math.round(video.videoHeight * scale);
 
   canvas.getContext("2d").drawImage(
-    video, 0, 0, canvas.width, canvas.height
+    video,
+    0,
+    0,
+    canvas.width,
+    canvas.height
   );
 
   capturedImage = canvas.toDataURL("image/jpeg", 0.85);
@@ -506,48 +597,62 @@ captureBtn.onclick = function() {
 
   captureBtn.style.display = "none";
   retakeBtn.style.display = "block";
+
   continueBtn.disabled = false;
 
-  statusText.textContent = "Selfie captured successfully.";
+  statusText.textContent =
+    "Selfie captured successfully.";
 };
 
+// Retake selfie
 retakeBtn.onclick = function() {
+
+  if (requestFinished) return;
+
   capturedImage = null;
 
   preview.src = "";
   preview.style.display = "none";
+
   video.style.display = "block";
 
   captureBtn.style.display = "block";
   retakeBtn.style.display = "none";
+
   continueBtn.disabled = true;
 
-  statusText.textContent = "Capture your selfie again.";
+  statusText.textContent =
+    "Capture your selfie again.";
 };
 
+// Continue and send selfie
 continueBtn.onclick = function() {
 
-  if (!capturedImage) return;
-
-  const params = new URLSearchParams(window.location.search);
-  const requestToken = params.get("token");
+  if (requestFinished || !capturedImage) return;
 
   if (!window.opener || window.opener.closed) {
-    statusText.textContent =
-      "Attendance portal connection not found. Please restart.";
+
+    notifyCancellation(
+      "Attendance portal connection not found. Please restart."
+    );
 
     return;
   }
 
   if (!requestToken) {
-    statusText.textContent =
-      "Invalid attendance request. Please restart.";
+
+    notifyCancellation(
+      "Invalid attendance request. Please restart."
+    );
 
     return;
   }
 
   continueBtn.disabled = true;
-  statusText.textContent = "Sending selfie to attendance portal...";
+  cancelBtn.disabled = true;
+
+  statusText.textContent =
+    "Sending selfie to attendance portal...";
 
   window.opener.postMessage(
     {
@@ -558,25 +663,30 @@ continueBtn.onclick = function() {
     "*"
   );
 
+  requestFinished = true;
+
   stopCamera();
-  statusText.textContent = "Selfie sent successfully.";
+
+  statusText.textContent =
+    "Selfie sent successfully.";
 
   setTimeout(function() {
     window.close();
   }, 500);
 };
 
+// Cancel button
 cancelBtn.onclick = function() {
-  stopCamera();
 
-  statusText.textContent = "Selfie cancelled.";
+  notifyCancellation(
+    "Selfie cancelled. Returning to attendance portal..."
+  );
 
-  continueBtn.disabled = true;
-  captureBtn.disabled = true;
-  retakeBtn.disabled = true;
 };
 
+// Start camera
 startCamera();
+
 </script>
 
 </body>
