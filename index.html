@@ -364,12 +364,44 @@ retakeBtn.onclick = function() {
 };
 
 continueBtn.onclick = function() {
+
   if (!capturedImage) return;
 
-  statusText.textContent =
-    "Selfie captured. Connection will be added next.";
+  const params = new URLSearchParams(window.location.search);
+  const requestToken = params.get("token");
+
+  if (!window.opener || window.opener.closed) {
+    statusText.textContent =
+      "Attendance portal connection not found. Please restart.";
+
+    return;
+  }
+
+  if (!requestToken) {
+    statusText.textContent =
+      "Invalid attendance request. Please restart.";
+
+    return;
+  }
+
+  continueBtn.disabled = true;
+  statusText.textContent = "Sending selfie to attendance portal...";
+
+  window.opener.postMessage(
+    {
+      type: "ATTENDANCE_SELFIE_CAPTURED",
+      token: requestToken,
+      image: capturedImage
+    },
+    "*"
+  );
 
   stopCamera();
+  statusText.textContent = "Selfie sent successfully.";
+
+  setTimeout(function() {
+    window.close();
+  }, 500);
 };
 
 cancelBtn.onclick = function() {
