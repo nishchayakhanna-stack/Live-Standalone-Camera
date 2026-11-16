@@ -1,1 +1,238 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Selfie Verification</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: #f5effb;
+      font-family: Arial, sans-serif;
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 420px;
+      padding: 22px;
+      background: white;
+      border-radius: 22px;
+      text-align: center;
+      box-shadow: 0 12px 40px #32105f20;
+    }
+
+    h2 {
+      color: #32105f;
+      margin-top: 0;
+    }
+
+    .camera-frame {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #171323;
+    }
+
+    video, img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    img {
+      display: none;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      flex: 1;
+      min-height: 48px;
+      border: 0;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #captureBtn {
+      background: #6414b8;
+      color: white;
+    }
+
+    #retakeBtn {
+      background: #eee4f8;
+      color: #52108e;
+      display: none;
+    }
+
+    #continueBtn {
+      background: #159653;
+      color: white;
+    }
+
+    #cancelBtn {
+      background: #eee;
+      color: #444;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="panel">
+
+    <h2>Selfie Verification</h2>
+    <p>Capture your selfie to continue attendance.</p>
+
+    <div class="camera-frame">
+      <video id="video" autoplay playsinline muted></video>
+      <img id="preview" alt="Selfie preview">
+    </div>
+
+    <canvas id="canvas" hidden></canvas>
+
+    <div class="actions">
+      <button id="captureBtn">Capture Selfie</button>
+      <button id="retakeBtn">Retake</button>
+    </div>
+
+    <div class="actions">
+      <button id="cancelBtn">Cancel</button>
+      <button id="continueBtn" disabled>Continue</button>
+    </div>
+
+    <div id="status">Requesting camera access...</div>
+
+  </main>
+
+  <script>
+    const video = document.getElementById("video");
+    const preview = document.getElementById("preview");
+    const canvas = document.getElementById("canvas");
+
+    const captureBtn = document.getElementById("captureBtn");
+    const retakeBtn = document.getElementById("retakeBtn");
+    const continueBtn = document.getElementById("continueBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const statusText = document.getElementById("status");
+
+    let cameraStream = null;
+    let capturedImage = null;
+
+    async function startCamera() {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false
+        });
+
+        video.srcObject = cameraStream;
+        await video.play();
+
+        statusText.textContent = "Camera ready. Capture your selfie.";
+
+      } catch (error) {
+        console.error(error);
+        statusText.textContent =
+          "Camera access denied or unavailable. Check browser permissions.";
+      }
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+    }
+
+    captureBtn.onclick = function() {
+      if (!video.videoWidth) return;
+
+      const maxWidth = 1280;
+      const scale = Math.min(1, maxWidth / video.videoWidth);
+
+      canvas.width = Math.round(video.videoWidth * scale);
+      canvas.height = Math.round(video.videoHeight * scale);
+
+      canvas.getContext("2d").drawImage(
+        video, 0, 0, canvas.width, canvas.height
+      );
+
+      capturedImage = canvas.toDataURL("image/jpeg", 0.85);
+
+      preview.src = capturedImage;
+      preview.style.display = "block";
+      video.style.display = "none";
+
+      captureBtn.style.display = "none";
+      retakeBtn.style.display = "block";
+      continueBtn.disabled = false;
+
+      statusText.textContent = "Selfie captured successfully.";
+    };
+
+    retakeBtn.onclick = function() {
+      capturedImage = null;
+
+      preview.style.display = "none";
+      video.style.display = "block";
+
+      captureBtn.style.display = "block";
+      retakeBtn.style.display = "none";
+      continueBtn.disabled = true;
+
+      statusText.textContent = "Capture your selfie again.";
+    };
+
+    continueBtn.onclick = function() {
+      if (!capturedImage) return;
+
+      statusText.textContent = "Selfie captured. Connection will be added next.";
+
+      stopCamera();
+
+      // Parent-window communication will be added
+      // after the hosting origin is configured.
+    };
+
+    cancelBtn.onclick = function() {
+      stopCamera();
+      statusText.textContent = "Selfie cancelled.";
+      continueBtn.disabled = true;
+      captureBtn.disabled = true;
+      retakeBtn.disabled = true;
+    };
+
+    startCamera();
+  </script>
+
+</body>
+</html>
+
