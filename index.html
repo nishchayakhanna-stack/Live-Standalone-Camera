@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#6414B8">
 
 <title>Zepto | Selfie Verification</title>
@@ -15,34 +15,54 @@
   padding: 0;
 }
 
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   min-height: 100vh;
   min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
   font-family: Arial, sans-serif;
   background:
-    radial-gradient(circle at top left, #9b55ed, transparent 45%),
+    radial-gradient(circle at 10% 0%, #a65bf0 0%, transparent 38%),
     linear-gradient(145deg, #31066b, #6414b8 55%, #8d32dc);
+  color: #35105f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding:
+    max(8px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
 }
 
 .page {
   width: 100%;
-  max-width: 430px;
+  max-width: 440px;
+  height: 100%;
+  max-height: 850px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 9px;
 }
 
+/* BRAND */
+
 .brand {
-  text-align: center;
   color: white;
-  margin-bottom: 22px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .brand-name {
-  font-size: 36px;
+  font-size: clamp(25px, 6vw, 33px);
   font-weight: 900;
   letter-spacing: -2px;
+  line-height: 1;
 }
 
 .brand-name span {
@@ -50,53 +70,66 @@ body {
 }
 
 .brand-subtitle {
-  margin-top: 5px;
-  font-size: 11px;
+  font-size: 9px;
   letter-spacing: 2px;
   text-transform: uppercase;
   opacity: .85;
+  margin-top: 4px;
 }
 
+/* MAIN PANEL */
+
 .panel {
+  flex: 1;
+  min-height: 0;
   background: #fff;
-  padding: 25px 21px;
-  border-radius: 26px;
-  box-shadow: 0 22px 65px rgba(20, 0, 45, .35);
+  border-radius: 23px;
+  padding: clamp(12px, 3vh, 21px);
+  box-shadow: 0 18px 55px rgba(20, 0, 45, .35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+
+/* HEADING */
 
 .heading {
   text-align: center;
-  margin-bottom: 20px;
+  flex-shrink: 0;
+  margin-bottom: 12px;
 }
 
 .heading h2 {
-  color: #35105f;
-  font-size: 23px;
+  font-size: clamp(18px, 5vw, 22px);
   font-weight: 800;
+  color: #35105f;
 }
 
 .heading p {
+  font-size: 11px;
   color: #888;
-  font-size: 12px;
-  margin-top: 7px;
-  line-height: 1.5;
+  margin-top: 5px;
+  line-height: 1.4;
 }
+
+/* CAMERA LABEL */
 
 .camera-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 11px;
-  font-weight: 700;
+  flex-shrink: 0;
+  margin-bottom: 8px;
+  font-size: 10px;
+  font-weight: 800;
   color: #5a287f;
 }
 
 .live-status {
-  color: #159653;
   display: flex;
   align-items: center;
   gap: 5px;
+  color: #159653;
 }
 
 .live-dot {
@@ -104,23 +137,27 @@ body {
   height: 7px;
   border-radius: 50%;
   background: #19b56a;
+  box-shadow: 0 0 0 3px #19b56a22;
 }
 
+/* CAMERA FRAME */
+
 .camera-frame {
+  position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
-  max-height: 440px;
+  flex: 1;
+  min-height: 100px;
   overflow: hidden;
-  border-radius: 19px;
+  border-radius: 17px;
   background: #190d25;
   border: 3px solid #eee4fa;
-  position: relative;
 }
 
 video,
 #preview {
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
 }
 
@@ -128,28 +165,36 @@ video,
   display: none;
 }
 
+/* CAMERA HINT */
+
 .camera-hint {
+  flex-shrink: 0;
   text-align: center;
-  font-size: 11px;
+  font-size: 10px;
   color: #999;
-  margin-top: 10px;
+  margin-top: 7px;
 }
+
+/* BUTTONS */
 
 .actions {
   display: flex;
-  gap: 10px;
-  margin-top: 16px;
+  gap: 9px;
+  flex-shrink: 0;
+  margin-top: 11px;
 }
 
 button {
   flex: 1;
-  min-height: 49px;
+  min-width: 0;
+  min-height: 44px;
   border: none;
-  border-radius: 13px;
-  font-size: 13px;
+  border-radius: 12px;
+  font-size: 12px;
   font-weight: 800;
   cursor: pointer;
   transition: transform .15s, opacity .15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button:active {
@@ -164,7 +209,7 @@ button:disabled {
 #captureBtn {
   background: linear-gradient(135deg, #6414b8, #8d35df);
   color: white;
-  box-shadow: 0 5px 14px #6414b833;
+  box-shadow: 0 5px 13px #6414b833;
 }
 
 #retakeBtn {
@@ -174,9 +219,9 @@ button:disabled {
 }
 
 #continueBtn {
-  background: #159653;
+  background: linear-gradient(135deg, #159653, #20b96b);
   color: white;
-  box-shadow: 0 5px 14px #15965330;
+  box-shadow: 0 5px 13px #15965330;
 }
 
 #cancelBtn {
@@ -184,38 +229,152 @@ button:disabled {
   color: #666;
 }
 
+/* STATUS */
+
 #status {
-  min-height: 34px;
-  margin-top: 17px;
+  min-height: 28px;
+  flex-shrink: 0;
+  margin-top: 9px;
   text-align: center;
-  font-size: 12px;
+  font-size: 11px;
   color: #777;
-  line-height: 1.5;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+/* FOOTER */
 
 .footer {
+  flex-shrink: 0;
   text-align: center;
   color: rgba(255,255,255,.75);
-  font-size: 10px;
-  margin-top: 20px;
-  letter-spacing: .5px;
+  font-size: 9px;
+  letter-spacing: .6px;
 }
 
-@media(max-width:380px) {
-  body {
-    padding: 13px;
+/* SHORT SCREEN */
+
+@media (max-height: 650px) {
+  .page {
+    gap: 5px;
   }
 
   .panel {
-    padding: 19px 15px;
+    padding: 10px 13px;
+    border-radius: 18px;
   }
 
-  .brand-name {
-    font-size: 32px;
+  .heading {
+    margin-bottom: 7px;
   }
 
   .heading h2 {
-    font-size: 21px;
+    font-size: 18px;
+  }
+
+  .heading p {
+    font-size: 10px;
+    margin-top: 3px;
+  }
+
+  .camera-label {
+    margin-bottom: 5px;
+  }
+
+  .camera-hint {
+    margin-top: 5px;
+    font-size: 9px;
+  }
+
+  .actions {
+    margin-top: 7px;
+  }
+
+  button {
+    min-height: 38px;
+    font-size: 11px;
+  }
+
+  #status {
+    min-height: 22px;
+    margin-top: 5px;
+    font-size: 10px;
+  }
+
+  .footer {
+    font-size: 8px;
+  }
+}
+
+/* VERY NARROW MOBILE */
+
+@media (max-width: 350px) {
+  .panel {
+    padding: 11px 10px;
+  }
+
+  button {
+    font-size: 10px;
+    min-height: 41px;
+  }
+
+  .heading p {
+    font-size: 10px;
+  }
+}
+
+/* LANDSCAPE MOBILE */
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .page {
+    max-width: 700px;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .brand {
+    width: 115px;
+    align-self: center;
+  }
+
+  .brand-name {
+    font-size: 26px;
+  }
+
+  .brand-subtitle {
+    font-size: 7px;
+  }
+
+  .panel {
+    flex: 1;
+  }
+
+  .heading {
+    margin-bottom: 5px;
+  }
+
+  .heading h2 {
+    font-size: 17px;
+  }
+
+  .camera-hint,
+  .footer {
+    display: none;
+  }
+
+  .camera-frame {
+    min-height: 60px;
+  }
+
+  .actions {
+    margin-top: 5px;
+  }
+
+  button {
+    min-height: 34px;
   }
 }
 </style>
@@ -239,6 +398,7 @@ button:disabled {
 
     <div class="camera-label">
       <span>CAMERA PREVIEW</span>
+
       <span class="live-status">
         <span class="live-dot"></span>
         LIVE CAMERA
@@ -266,7 +426,9 @@ button:disabled {
       <button id="continueBtn" disabled>Continue</button>
     </div>
 
-    <div id="status">Requesting camera access...</div>
+    <div id="status">
+      Requesting camera access...
+    </div>
 
   </section>
 
