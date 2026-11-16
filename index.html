@@ -2,119 +2,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Attendance Selfie Verification</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#6414B8">
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<title>Zepto | Selfie Verification</title>
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      background: #f5effb;
-      font-family: Arial, sans-serif;
-    }
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    .panel {
-      width: 100%;
-      max-width: 420px;
-      padding: 22px;
-      background: white;
-      border-radius: 22px;
-      text-align: center;
-      box-shadow: 0 12px 40px #32105f20;
-    }
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, #9b55ed, transparent 45%),
+    linear-gradient(145deg, #31066b, #6414b8 55%, #8d32dc);
+}
 
-    h2 {
-      color: #32105f;
-      margin-top: 0;
-    }
+.page {
+  width: 100%;
+  max-width: 430px;
+}
 
-    .camera-frame {
-      width: 100%;
-      aspect-ratio: 4 / 5;
-      overflow: hidden;
-      border-radius: 16px;
-      background: #171323;
-    }
+.brand {
+  text-align: center;
+  color: white;
+  margin-bottom: 22px;
+}
 
-    video, img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+.brand-name {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
 
-    img {
-      display: none;
-    }
+.brand-name span {
+  color: #ffcf45;
+}
 
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-    }
+.brand-subtitle {
+  margin-top: 5px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: .85;
+}
 
-    button {
-      flex: 1;
-      min-height: 48px;
-      border: 0;
-      border-radius: 12px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.panel {
+  background: #fff;
+  padding: 25px 21px;
+  border-radius: 26px;
+  box-shadow: 0 22px 65px rgba(20, 0, 45, .35);
+}
 
-    #captureBtn {
-      background: #6414b8;
-      color: white;
-    }
+.heading {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-    #retakeBtn {
-      background: #eee4f8;
-      color: #52108e;
-      display: none;
-    }
+.heading h2 {
+  color: #35105f;
+  font-size: 23px;
+  font-weight: 800;
+}
 
-    #continueBtn {
-      background: #159653;
-      color: white;
-    }
+.heading p {
+  color: #888;
+  font-size: 12px;
+  margin-top: 7px;
+  line-height: 1.5;
+}
 
-    #cancelBtn {
-      background: #eee;
-      color: #444;
-    }
+.camera-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5a287f;
+}
 
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
+.live-status {
+  color: #159653;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 
-    #status {
-      margin-top: 14px;
-      font-size: 13px;
-      color: #666;
-    }
-  </style>
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #19b56a;
+}
+
+.camera-frame {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: 440px;
+  overflow: hidden;
+  border-radius: 19px;
+  background: #190d25;
+  border: 3px solid #eee4fa;
+  position: relative;
+}
+
+video,
+#preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#preview {
+  display: none;
+}
+
+.camera-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #999;
+  margin-top: 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+button {
+  flex: 1;
+  min-height: 49px;
+  border: none;
+  border-radius: 13px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .15s, opacity .15s;
+}
+
+button:active {
+  transform: scale(.97);
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+#captureBtn {
+  background: linear-gradient(135deg, #6414b8, #8d35df);
+  color: white;
+  box-shadow: 0 5px 14px #6414b833;
+}
+
+#retakeBtn {
+  display: none;
+  background: #f1e7fb;
+  color: #59129a;
+}
+
+#continueBtn {
+  background: #159653;
+  color: white;
+  box-shadow: 0 5px 14px #15965330;
+}
+
+#cancelBtn {
+  background: #f3f3f5;
+  color: #666;
+}
+
+#status {
+  min-height: 34px;
+  margin-top: 17px;
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+  line-height: 1.5;
+}
+
+.footer {
+  text-align: center;
+  color: rgba(255,255,255,.75);
+  font-size: 10px;
+  margin-top: 20px;
+  letter-spacing: .5px;
+}
+
+@media(max-width:380px) {
+  body {
+    padding: 13px;
+  }
+
+  .panel {
+    padding: 19px 15px;
+  }
+
+  .brand-name {
+    font-size: 32px;
+  }
+
+  .heading h2 {
+    font-size: 21px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <main class="panel">
+<main class="page">
 
-    <h2>Selfie Verification</h2>
-    <p>Capture your selfie to continue attendance.</p>
+  <header class="brand">
+    <div class="brand-name">zepto<span>.</span></div>
+    <div class="brand-subtitle">MH Attendance Portal</div>
+  </header>
+
+  <section class="panel">
+
+    <div class="heading">
+      <h2>Selfie Verification</h2>
+      <p>Please capture your live selfie to continue your attendance.</p>
+    </div>
+
+    <div class="camera-label">
+      <span>CAMERA PREVIEW</span>
+      <span class="live-status">
+        <span class="live-dot"></span>
+        LIVE CAMERA
+      </span>
+    </div>
 
     <div class="camera-frame">
       <video id="video" autoplay playsinline muted></video>
-      <img id="preview" alt="Selfie preview">
+      <img id="preview" alt="Captured selfie">
     </div>
+
+    <p class="camera-hint">
+      Keep your face clearly visible inside the camera frame.
+    </p>
 
     <canvas id="canvas" hidden></canvas>
 
@@ -130,109 +268,122 @@
 
     <div id="status">Requesting camera access...</div>
 
-  </main>
+  </section>
 
-  <script>
-    const video = document.getElementById("video");
-    const preview = document.getElementById("preview");
-    const canvas = document.getElementById("canvas");
+  <footer class="footer">
+    ZEPTO MH ATTENDANCE • SECURE SELFIE VERIFICATION
+  </footer>
 
-    const captureBtn = document.getElementById("captureBtn");
-    const retakeBtn = document.getElementById("retakeBtn");
-    const continueBtn = document.getElementById("continueBtn");
-    const cancelBtn = document.getElementById("cancelBtn");
-    const statusText = document.getElementById("status");
+</main>
 
-    let cameraStream = null;
-    let capturedImage = null;
+<script>
+const video = document.getElementById("video");
+const preview = document.getElementById("preview");
+const canvas = document.getElementById("canvas");
 
-    async function startCamera() {
-      try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-          audio: false
-        });
+const captureBtn = document.getElementById("captureBtn");
+const retakeBtn = document.getElementById("retakeBtn");
+const continueBtn = document.getElementById("continueBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+const statusText = document.getElementById("status");
 
-        video.srcObject = cameraStream;
-        await video.play();
+let cameraStream = null;
+let capturedImage = null;
 
-        statusText.textContent = "Camera ready. Capture your selfie.";
-
-      } catch (error) {
-        console.error(error);
-        statusText.textContent =
-          "Camera access denied or unavailable. Check browser permissions.";
-      }
+async function startCamera() {
+  try {
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+      throw new Error("Camera API unavailable");
     }
 
-    function stopCamera() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-      }
-    }
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" },
+      audio: false
+    });
 
-    captureBtn.onclick = function() {
-      if (!video.videoWidth) return;
+    video.srcObject = cameraStream;
+    await video.play();
 
-      const maxWidth = 1280;
-      const scale = Math.min(1, maxWidth / video.videoWidth);
+    statusText.textContent =
+      "Camera ready. Capture your selfie.";
 
-      canvas.width = Math.round(video.videoWidth * scale);
-      canvas.height = Math.round(video.videoHeight * scale);
+  } catch (error) {
+    console.error(error);
 
-      canvas.getContext("2d").drawImage(
-        video, 0, 0, canvas.width, canvas.height
-      );
+    statusText.textContent =
+      "Camera access denied or unavailable. Check browser permissions.";
+  }
+}
 
-      capturedImage = canvas.toDataURL("image/jpeg", 0.85);
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+}
 
-      preview.src = capturedImage;
-      preview.style.display = "block";
-      video.style.display = "none";
+captureBtn.onclick = function() {
+  if (!video.videoWidth) return;
 
-      captureBtn.style.display = "none";
-      retakeBtn.style.display = "block";
-      continueBtn.disabled = false;
+  const maxWidth = 1280;
+  const scale = Math.min(1, maxWidth / video.videoWidth);
 
-      statusText.textContent = "Selfie captured successfully.";
-    };
+  canvas.width = Math.round(video.videoWidth * scale);
+  canvas.height = Math.round(video.videoHeight * scale);
 
-    retakeBtn.onclick = function() {
-      capturedImage = null;
+  canvas.getContext("2d").drawImage(
+    video, 0, 0, canvas.width, canvas.height
+  );
 
-      preview.style.display = "none";
-      video.style.display = "block";
+  capturedImage = canvas.toDataURL("image/jpeg", 0.85);
 
-      captureBtn.style.display = "block";
-      retakeBtn.style.display = "none";
-      continueBtn.disabled = true;
+  preview.src = capturedImage;
+  preview.style.display = "block";
+  video.style.display = "none";
 
-      statusText.textContent = "Capture your selfie again.";
-    };
+  captureBtn.style.display = "none";
+  retakeBtn.style.display = "block";
+  continueBtn.disabled = false;
 
-    continueBtn.onclick = function() {
-      if (!capturedImage) return;
+  statusText.textContent = "Selfie captured successfully.";
+};
 
-      statusText.textContent = "Selfie captured. Connection will be added next.";
+retakeBtn.onclick = function() {
+  capturedImage = null;
 
-      stopCamera();
+  preview.src = "";
+  preview.style.display = "none";
+  video.style.display = "block";
 
-      // Parent-window communication will be added
-      // after the hosting origin is configured.
-    };
+  captureBtn.style.display = "block";
+  retakeBtn.style.display = "none";
+  continueBtn.disabled = true;
 
-    cancelBtn.onclick = function() {
-      stopCamera();
-      statusText.textContent = "Selfie cancelled.";
-      continueBtn.disabled = true;
-      captureBtn.disabled = true;
-      retakeBtn.disabled = true;
-    };
+  statusText.textContent = "Capture your selfie again.";
+};
 
-    startCamera();
-  </script>
+continueBtn.onclick = function() {
+  if (!capturedImage) return;
+
+  statusText.textContent =
+    "Selfie captured. Connection will be added next.";
+
+  stopCamera();
+};
+
+cancelBtn.onclick = function() {
+  stopCamera();
+
+  statusText.textContent = "Selfie cancelled.";
+
+  continueBtn.disabled = true;
+  captureBtn.disabled = true;
+  retakeBtn.disabled = true;
+};
+
+startCamera();
+</script>
 
 </body>
 </html>
-
